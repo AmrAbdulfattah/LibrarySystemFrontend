@@ -1,6 +1,14 @@
 import { TestBed } from "@angular/core/testing";
 import { PaginationComponent } from "./ui";
 describe("Shared pagination", () => {
+  it("limits the mobile page window to the current page and its neighbors", () => {
+    const f = setup(25, 50, 500);
+    expect(
+      [...f.nativeElement.querySelectorAll(".mobile-page")].map((b: any) =>
+        b.textContent.trim(),
+      ),
+    ).toEqual(["24", "25", "26"]);
+  });
   function setup(
     page: number,
     pages: number,

@@ -783,3 +783,227 @@ dialog form {
     transition: none !important;
   }
 }
+
+/* Intrinsic sizing prevents long metadata and controls from widening their containers. */
+img {
+  max-width: 100%;
+}
+input,
+select,
+.form-fields,
+.image-field,
+.book-detail > *,
+.page-heading > *,
+.book-card,
+.book-grid > *,
+.toast > * {
+  min-width: 0;
+}
+.book-detail,
+dialog,
+.state,
+.toast {
+  overflow-wrap: anywhere;
+}
+.image-preview,
+.preview-placeholder {
+  max-width: 100%;
+}
+.book-card p,
+.book-card small {
+  overflow-wrap: anywhere;
+}
+.actions {
+  flex-wrap: wrap;
+}
+.pagination {
+  flex-wrap: wrap;
+}
+.pagination-controls {
+  overflow-x: visible;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .admin-main .book-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-main .book-detail app-cover {
+    width: min(260px, 100%);
+  }
+  .book-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .filters {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 767px) {
+  .admin-main .filters .filter-field,
+  .admin-main .filters label {
+    min-width: 0;
+  }
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .page-heading {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .page-heading > * {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .book-card h2 {
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+  }
+  .book-card p,
+  .book-card small {
+    overflow-wrap: anywhere;
+  }
+  .book-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .book-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  dl,
+  dialog dl {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  dialog {
+    padding: 20px;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+  }
+  dialog h2,
+  dialog h3 {
+    overflow-wrap: anywhere;
+  }
+  .pagination-summary {
+    flex-shrink: 1;
+    max-width: 100%;
+    white-space: normal;
+  }
+  .pagination-controls {
+    gap: 2px;
+  }
+  .pagination .page-number:not(.mobile-page),
+  .pagination .pagination-ellipsis {
+    display: none;
+  }
+  .pagination .page-number {
+    min-width: 28px;
+    padding: 4px;
+  }
+  .pagination button {
+    gap: 3px;
+    padding: 6px 4px;
+  }
+  .responsive-table {
+    background: transparent;
+    overflow: visible;
+  }
+  .responsive-table table,
+  .responsive-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .responsive-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    overflow: hidden;
+  }
+  .responsive-table tbody {
+    display: grid;
+    gap: 12px;
+  }
+  .responsive-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 0;
+  }
+  .responsive-table td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .responsive-table td[data-label]::before {
+    content: attr(data-label) ": ";
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .responsive-table .table-book {
+    min-width: 0;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .responsive-table .table-book app-cover {
+    width: 48px;
+  }
+  .responsive-table app-cover .cover-fallback {
+    padding: 4px;
+  }
+  .responsive-table app-cover .cover-fallback small {
+    display: none;
+  }
+  .responsive-table app-cover .cover-fallback span {
+    font-size: 24px;
+  }
+  .responsive-table .table-book span {
+    min-width: 0;
+    max-width: none;
+    font-size: 22px;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+  .responsive-table .tag {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .responsive-table .row-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+  }
+  .responsive-table .entity-name {
+    unicode-bidi: plaintext;
+  }
+  .admin-shell aside {
+    max-width: 100%;
+    max-height: calc(100dvh - 80px);
+    overflow-y: auto;
+    position: fixed;
+    inset: 72px auto auto 16px;
+    width: min(300px, calc(100% - 32px));
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px #142e2333;
+    z-index: 50;
+  }
+}
+@media (max-width: 359px) {
+  .book-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .filters .filter-field {
+    grid-column: 1;
+  }
+}

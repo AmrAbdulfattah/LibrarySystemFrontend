@@ -27,8 +27,8 @@
       message="No books match the selected filters."
     />
   } @else if (admin) {
-    <div class="table-wrap">
-      <table>
+    <div class="table-wrap responsive-table books-table">
+      <table role="table">
         <thead>
           <tr>
             <th scope="col">Book</th>
@@ -49,11 +49,11 @@
                   /><span>{{ book.title }}</span></a
                 >
               </td>
-              <td>{{ book.authorName }}</td>
-              <td>
+              <td data-label="Author">{{ book.authorName }}</td>
+              <td data-label="Category">
                 <span class="tag">{{ book.categoryName }}</span>
               </td>
-              <td>{{ book.publicationYear }}</td>
+              <td data-label="Publication year">{{ book.publicationYear }}</td>
               <td>
                 <div class="row-actions">
                   <a

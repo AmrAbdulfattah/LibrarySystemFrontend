@@ -98,6 +98,7 @@ export class CoverComponent {
               type="button"
               class="page-number"
               [class.current-page]="item === page()"
+              [class.mobile-page]="item >= page() - 1 && item <= page() + 1"
               [attr.aria-current]="item === page() ? 'page' : null"
               [attr.aria-label]="'Page ' + item"
               (click)="change.emit(item)"
