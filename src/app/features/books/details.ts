@@ -32,10 +32,6 @@ import { CoverComponent, StateComponent } from "../../shared/ui";
               <dt>Last updated</dt>
               <dd>{{ b.updatedAt | date: "longDate" }}</dd>
             }
-            @if (admin && b.updatedBy) {
-              <dt>Updated by</dt>
-              <dd>{{ b.updatedBy }}</dd>
-            }
           </dl>
           @if (admin) {
             <a

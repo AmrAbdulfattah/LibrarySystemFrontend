@@ -91,10 +91,6 @@
           <dt>Updated</dt>
           <dd>{{ item.updatedAt | date: "medium" }}</dd>
         }
-        @if (item.updatedBy) {
-          <dt>Updated by</dt>
-          <dd>{{ item.updatedBy }}</dd>
-        }
       </dl>
     }
     <div class="actions"><button (click)="close()">Close</button></div>
