@@ -665,7 +665,7 @@ dialog form {
     gap: 10px;
     margin-bottom: 24px;
   }
-  .filters label:first-child {
+  .filters .filter-field:first-child {
     grid-column: 1/-1;
   }
   .filters > button {

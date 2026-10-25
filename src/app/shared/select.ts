@@ -27,14 +27,16 @@ export function selectPanelPosition(
   width: number,
   height: number,
   contentHeight = 240,
+  heightLimit = 240,
 ) {
   const margin = 8,
     gap = 4;
   const below = Math.max(0, height - rect.bottom - gap - margin),
     above = Math.max(0, rect.top - gap - margin);
-  const opensAbove = below < Math.min(240, contentHeight) && above > below;
+  const opensAbove =
+    below < Math.min(heightLimit, contentHeight) && above > below;
   const maxHeight = Math.min(
-    240,
+    heightLimit,
     Math.max(0, height - 2 * margin),
     opensAbove ? above : below,
   );
@@ -78,6 +80,7 @@ export class SelectComponent implements ControlValueAccessor {
   showLabel = input(false);
   options = input<readonly SelectOption[]>([]);
   placeholder = input("Select an option");
+  panelMaxHeight = input(240);
   emptyValue = input<SelectValue>("");
   invalid = input(false);
   readonly value = signal<SelectValue | null>(null);
@@ -264,7 +267,11 @@ export class SelectComponent implements ControlValueAccessor {
       rect,
       view.innerWidth,
       view.innerHeight,
-      Math.min(240, panel.scrollHeight || 240),
+      Math.min(
+        this.panelMaxHeight(),
+        panel.scrollHeight || this.panelMaxHeight(),
+      ),
+      this.panelMaxHeight(),
     );
     panel.style.left = layout.left + "px";
     panel.style.top = layout.top + "px";

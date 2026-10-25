@@ -21,6 +21,26 @@ class Host {
   ];
 }
 describe("Accessible select", () => {
+  it("supports a 250px year panel and opens above near the viewport bottom", () => {
+    const below = selectPanelPosition(
+      { left: 20, top: 100, bottom: 144, width: 200 },
+      800,
+      600,
+      250,
+      250,
+    );
+    expect(below.maxHeight).toBe(250);
+    const above = selectPanelPosition(
+      { left: 20, top: 500, bottom: 544, width: 200 },
+      800,
+      600,
+      250,
+      250,
+    );
+    expect(above.maxHeight).toBe(250);
+    expect(above.top).toBe(246);
+    expect(above.top + above.maxHeight).toBeLessThan(500);
+  });
   it("keeps an open panel inside the viewport after its trigger scrolls offscreen", () => {
     const p = selectPanelPosition(
       { left: 20, top: 900, bottom: 944, width: 200 },

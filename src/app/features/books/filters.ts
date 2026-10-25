@@ -6,15 +6,15 @@ import { SelectComponent } from "../../shared/select";
   selector: "app-book-filters",
   imports: [ReactiveFormsModule, SelectComponent],
   template: `<form class="filters" [formGroup]="form()">
-    <label
-      ><span class="sr-only">Publication Year</span
-      ><select formControlName="publicationYear">
-        <option value="">All Publication Years</option>
-        @for (year of years(); track year) {
-          <option [value]="year">{{ year }}</option>
-        }
-      </select></label
-    >
+    <div class="filter-field">
+      <app-select
+        label="Publication Year"
+        placeholder="All Publication Years"
+        formControlName="publicationYear"
+        [options]="yearOptions()"
+        [panelMaxHeight]="250"
+      />
+    </div>
     <div class="filter-field">
       <app-select
         label="Author"
@@ -53,5 +53,8 @@ export class BookFilters {
     this.categories().map((c) => ({ value: String(c.id), label: c.name })),
   );
   years = input<number[]>([]);
+  yearOptions = computed(() =>
+    this.years().map((year) => ({ value: String(year), label: String(year) })),
+  );
   clear = output();
 }
