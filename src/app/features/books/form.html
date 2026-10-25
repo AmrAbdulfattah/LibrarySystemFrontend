@@ -1,0 +1,110 @@
+<a class="back" routerLink="/admin/books">← Back to Books</a>
+<header class="page-heading">
+  <h1>{{ id ? "Edit Book" : "Add New Book" }}</h1>
+</header>
+@if (loading() || loadError()) {
+  <app-state [loading]="loading()" [error]="loadError()" (retry)="load()" />
+} @else {
+  <form class="form-panel book-form" [formGroup]="form" (ngSubmit)="save()">
+    <div class="form-fields">
+      <label
+        >Book title<input
+          formControlName="title"
+          maxlength="200"
+          [attr.aria-invalid]="
+            form.controls.title.touched && form.controls.title.invalid
+          "
+      /></label>
+      @if (form.controls.title.touched && form.controls.title.invalid) {
+        <small class="error">Enter a title of up to 200 characters.</small>
+      }
+      <label
+        >Publication year<input
+          type="number"
+          formControlName="publicationYear"
+          min="1"
+          [max]="maxYear"
+          step="1"
+      /></label>
+      @if (
+        form.controls.publicationYear.touched &&
+        form.controls.publicationYear.invalid
+      ) {
+        <small class="error"
+          >Enter a whole year between 1 and {{ maxYear }}.</small
+        >
+      }
+      <label
+        >Author<select formControlName="authorId">
+          <option [ngValue]="0">Select an author</option>
+          @for (author of authors(); track author.id) {
+            <option [ngValue]="author.id">{{ author.name }}</option>
+          }
+        </select></label
+      >
+      @if (form.controls.authorId.touched && form.controls.authorId.invalid) {
+        <small class="error">Select an author.</small>
+      }
+      @if (!authors().length) {
+        <p>
+          No authors available.
+          <a routerLink="/admin/authors">Add an author</a> first.
+        </p>
+      }
+      <label
+        >Category<select formControlName="categoryId">
+          <option [ngValue]="0">Select a category</option>
+          @for (category of categories(); track category.id) {
+            <option [ngValue]="category.id">{{ category.name }}</option>
+          }
+        </select></label
+      >
+      @if (
+        form.controls.categoryId.touched && form.controls.categoryId.invalid
+      ) {
+        <small class="error">Select a category.</small>
+      }
+      @if (!categories().length) {
+        <p>
+          No categories available.
+          <a routerLink="/admin/categories">Add a category</a> first.
+        </p>
+      }
+    </div>
+    <div class="image-field">
+      <label for="cover">{{
+        id ? "Replace cover (optional)" : "Book cover"
+      }}</label>
+      @if (preview()) {
+        <img
+          class="image-preview"
+          [src]="preview()"
+          alt="Selected book cover preview"
+        />
+      } @else {
+        <div class="preview-placeholder">Select a cover image</div>
+      }
+      <input
+        id="cover"
+        type="file"
+        accept=".jpg,.jpeg,.png,.webp"
+        (change)="selectImage($event)"
+      /><small>JPG, JPEG, PNG or WEBP · maximum 3 MB</small>
+      @if (imageIssue()) {
+        <p class="error" role="alert">{{ imageIssue() }}</p>
+      }
+    </div>
+    @if (error()) {
+      <p class="error form-wide" role="alert">{{ error() }}</p>
+    }
+    <div class="actions form-wide">
+      <a class="button" routerLink="/admin/books">Cancel</a
+      ><button
+        class="primary"
+        [disabled]="form.invalid || busy() || !!imageIssue() || (!id && !file)"
+      >
+        {{ busy() ? "Saving…" : "Save Book" }}
+      </button>
+    </div>
+  </form>
+}

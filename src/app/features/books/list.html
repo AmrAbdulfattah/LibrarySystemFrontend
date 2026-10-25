@@ -1,0 +1,103 @@
+@if (admin) {
+  <header class="page-heading">
+    <h1>Library System</h1>
+    <a class="button primary" routerLink="/admin/books/new">＋ Add New Book</a>
+  </header>
+  <h2 class="sr-only">Books</h2>
+}
+<app-book-filters
+  [form]="form"
+  [authors]="authors()"
+  [categories]="categories()"
+  [years]="years()"
+  (clear)="clear()"
+/>
+@if (optionError()) {
+  <p class="error" role="alert">
+    Filter options could not load. {{ optionError() }}
+    <button (click)="loadOptions()">Retry filters</button>
+  </p>
+}
+@if (loading() || error()) {
+  <app-state [loading]="loading()" [error]="error()" (retry)="reload()" />
+} @else if (data(); as result) {
+  @if (!result.items.length) {
+    <app-state
+      title="No books found"
+      message="No books match the selected filters."
+    />
+  } @else if (admin) {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Book</th>
+            <th scope="col">Author</th>
+            <th scope="col">Category</th>
+            <th scope="col">Pub. Year</th>
+            <th scope="col" class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (book of result.items; track book.id) {
+            <tr>
+              <td>
+                <a class="table-book" [routerLink]="['/admin/books', book.id]"
+                  ><app-cover
+                    [src]="book.imageUrl"
+                    [title]="book.title"
+                  /><span>{{ book.title }}</span></a
+                >
+              </td>
+              <td>{{ book.authorName }}</td>
+              <td>
+                <span class="tag">{{ book.categoryName }}</span>
+              </td>
+              <td>{{ book.publicationYear }}</td>
+              <td>
+                <div class="row-actions">
+                  <a
+                    [routerLink]="['/admin/books', book.id]"
+                    [attr.aria-label]="'View ' + book.title"
+                    >View</a
+                  ><a
+                    [routerLink]="['/admin/books', book.id, 'edit']"
+                    [attr.aria-label]="'Edit ' + book.title"
+                    >Edit</a
+                  ><button
+                    class="text-button delete"
+                    (click)="deleting.set(book); deleteError.set('')"
+                    [attr.aria-label]="'Delete ' + book.title"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="book-grid">
+      @for (book of result.items; track book.id) {
+        <app-book-card [book]="book" />
+      }
+    </div>
+  }
+  <app-pagination
+    [page]="result.pageNumber"
+    [pages]="result.totalPages"
+    [total]="result.totalCount"
+    (change)="navigate($event)"
+  />
+}
+@if (deleting(); as book) {
+  <app-confirm
+    [name]="book.title"
+    [busy]="deleteBusy()"
+    [error]="deleteError()"
+    (cancel)="deleting.set(null)"
+    (confirm)="confirmDelete()"
+  />
+}

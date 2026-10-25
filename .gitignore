@@ -1,0 +1,43 @@
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.pfx
+*.p12
+*.keystore
+credentials.json
+secrets.json
+.npmrc
+.netrc
+
+# IDE and operating system files
+.vs/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs, temporary files and build artifacts
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+tmp/
+temp/
+.cache/
+build/
+*.tsbuildinfo

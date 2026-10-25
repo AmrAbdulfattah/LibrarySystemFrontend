@@ -1,0 +1,18 @@
+import { ApplicationConfig } from "@angular/core";
+import { provideHttpClient, withInterceptors } from "@angular/common/http";
+import { provideRouter, withInMemoryScrolling } from "@angular/router";
+import { API_BASE_URL } from "./core/api";
+import { authInterceptor } from "./core/auth";
+import { routes } from "./app.routes";
+export function appConfig(apiBaseUrl: string): ApplicationConfig {
+  return {
+    providers: [
+      provideRouter(
+        routes,
+        withInMemoryScrolling({ scrollPositionRestoration: "enabled" }),
+      ),
+      provideHttpClient(withInterceptors([authInterceptor])),
+      { provide: API_BASE_URL, useValue: apiBaseUrl },
+    ],
+  };
+}

@@ -1,0 +1,145 @@
+<header class="page-heading">
+  <div>
+    <span class="eyebrow">Library System</span>
+    <h1>{{ plural }}</h1>
+  </div>
+  <button class="primary" (click)="open('create')">＋ Add {{ label }}</button>
+</header>
+@if (loading() || error()) {
+  <app-state [loading]="loading()" [error]="error()" (retry)="reload()" />
+} @else if (data(); as result) {
+  @if (!result.items.length) {
+    <app-state
+      [title]="'No ' + plural.toLowerCase() + ' yet'"
+      [message]="'Add a ' + label.toLowerCase() + ' to get started.'"
+    />
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{{ label }} name</th>
+            <th scope="col" class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of result.items; track item.id) {
+            <tr>
+              <td class="entity-name">{{ item.name }}</td>
+              <td>
+                <div class="row-actions">
+                  <button
+                    class="text-button"
+                    (click)="open('view', item)"
+                    [attr.aria-label]="'View ' + item.name"
+                  >
+                    View</button
+                  ><button
+                    class="text-button"
+                    (click)="open('edit', item)"
+                    [attr.aria-label]="'Edit ' + item.name"
+                  >
+                    Edit</button
+                  ><button
+                    class="text-button delete"
+                    (click)="deleting.set(item); deleteError.set('')"
+                    [attr.aria-label]="'Delete ' + item.name"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  <app-pagination
+    [page]="result.pageNumber"
+    [pages]="result.totalPages"
+    [total]="result.totalCount"
+    (change)="navigate($event)"
+  />
+}
+<dialog
+  #editor
+  aria-labelledby="editor-title"
+  (cancel)="busy() ? $event.preventDefault() : close()"
+>
+  <h2 id="editor-title">
+    {{
+      mode() === "view"
+        ? label + " Details"
+        : mode() === "edit"
+          ? "Edit " + label
+          : "Add
+    " + label
+    }}
+  </h2>
+  @if (modalLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (mode() === "view") {
+    @if (viewing(); as item) {
+      <h3 class="entity-name">{{ item.name }}</h3>
+      <dl>
+        @if (item.createdAt) {
+          <dt>Created</dt>
+          <dd>{{ item.createdAt | date: "medium" }}</dd>
+        }
+        @if (item.updatedAt) {
+          <dt>Updated</dt>
+          <dd>{{ item.updatedAt | date: "medium" }}</dd>
+        }
+        @if (item.updatedBy) {
+          <dt>Updated by</dt>
+          <dd>{{ item.updatedBy }}</dd>
+        }
+      </dl>
+    }
+    <div class="actions"><button (click)="close()">Close</button></div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label
+        >{{ label }} name<input
+          formControlName="name"
+          [maxLength]="maxLength"
+          [attr.aria-invalid]="
+            form.controls.name.touched && form.controls.name.invalid
+          "
+      /></label>
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <small class="error"
+          >Enter a name of up to {{ maxLength }} characters.</small
+        >
+      }
+      <div class="actions">
+        <button type="button" (click)="close()" [disabled]="busy()">
+          Cancel</button
+        ><button
+          class="primary"
+          [disabled]="
+            form.invalid || busy() || (!viewing() && mode() === 'edit')
+          "
+        >
+          {{ busy() ? "Saving…" : "Save " + label }}
+        </button>
+      </div>
+    </form>
+  }
+  @if (modalError()) {
+    <p class="error" role="alert">{{ modalError() }}</p>
+    @if (editing(); as item) {
+      <button (click)="close(); open(mode(), item)">Retry loading</button>
+    }
+  }
+</dialog>
+@if (deleting(); as item) {
+  <app-confirm
+    [name]="item.name"
+    [busy]="busy()"
+    [error]="deleteError()"
+    (cancel)="deleting.set(null)"
+    (confirm)="confirmDelete()"
+  />
+}
