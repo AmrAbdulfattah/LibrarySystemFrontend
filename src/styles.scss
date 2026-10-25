@@ -160,14 +160,16 @@ small {
   margin: 0 0 32px;
   box-shadow: 0 2px 4px #1a382b05;
 }
-.filters label {
+.filters label,
+.filters .filter-field {
   flex: 1;
   min-width: 0;
 }
-.filters select {
+.filters select,
+.filters .filter-field {
   font-size: 13px;
 }
-.filters button {
+.filters > button {
   white-space: nowrap;
   color: var(--muted);
 }
@@ -220,6 +222,16 @@ small {
 }
 .pagination small {
   margin-left: 8px;
+}
+.pagination .current-page {
+  display: inline-block;
+  min-width: 28px;
+  padding: 2px 8px;
+  margin: 0 3px;
+  border-radius: 4px;
+  background: var(--green);
+  color: var(--cream);
+  text-align: center;
 }
 .admin-shell {
   min-height: 100vh;
@@ -597,7 +609,8 @@ dialog form {
   .admin-main .filters {
     flex-wrap: wrap;
   }
-  .admin-main .filters label {
+  .admin-main .filters label,
+  .admin-main .filters .filter-field {
     min-width: 130px;
   }
   .book-form {
@@ -631,7 +644,7 @@ dialog form {
   .filters label:first-child {
     grid-column: 1/-1;
   }
-  .filters button {
+  .filters > button {
     grid-column: 1/-1;
     justify-self: end;
     min-height: 30px;

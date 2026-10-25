@@ -32,7 +32,7 @@ import { AuthService } from "../../core/auth";
         >
       </nav>
       <div class="sidebar-bottom">
-        <a routerLink="/">↗ View Website</a
+        <a href="/" target="_blank" rel="noopener noreferrer">↗ View Website</a
         ><button (click)="auth.logout()">Log out</button>
       </div>
     </aside>

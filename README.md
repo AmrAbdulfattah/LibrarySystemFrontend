@@ -24,7 +24,7 @@ Production files are in `dist/library-system/browser`. Serve this directory with
 
 Set `public/config.json` → `apiBaseUrl` to the backend API root, currently `https://libsys.runasp.net/api`. The app loads it before bootstrapping; deployed configuration can be edited without recompiling. The backend must allow the frontend origin through CORS. Relative image paths resolve against the configured backend origin; absolute backend image URLs are preserved. Google Fonts supplies the two design fonts.
 
-Authentication follows the backend's JWT design. The token is stored in sessionStorage, expires according to its JWT expiry, and is sent only to the configured API. Admin navigation checks the Admin role; backend authorization remains authoritative. HTTP 401 clears the session, 403 displays a permission error. There is no registration or refresh-token endpoint.
+Authentication follows the backend's bearer JWT design. The access token persists in localStorage and restores before routing, including across browser restarts. It is sent only to the configured API while its actual JWT expiry remains valid. Expiry, focus/visibility checks and cross-tab storage events keep sessions synchronized; logout clears the persisted token. Matching HTTP 401 responses invalidate the session; late 401 responses do not invalidate a newer login. Backend authorization remains authoritative. There is no registration, cookie-auth contract or refresh-token endpoint. Browser-accessible token storage carries XSS exposure, so only the token persists (never passwords or JWT secrets), and Angular's escaping/sanitization must remain enabled.
 
 ## Architecture
 

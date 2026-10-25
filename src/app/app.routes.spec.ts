@@ -10,6 +10,7 @@ import { API_BASE_URL } from "./core/api";
 import { routes } from "./app.routes";
 describe("Application routes", () => {
   beforeEach(() => {
+    localStorage.clear();
     sessionStorage.clear();
     TestBed.configureTestingModule({
       providers: [
@@ -59,19 +60,17 @@ describe("Application routes", () => {
     harness.detectChanges();
     expect(harness.routeNativeElement?.textContent).toContain("No books found");
     await harness.navigateByUrl("/books/7");
-    http
-      .expectOne("https://library.test/api/books/7")
-      .flush({
-        success: true,
-        data: {
-          id: 7,
-          title: "Public title",
-          authorName: "Author",
-          categoryName: "Category",
-          publicationYear: 1929,
-          imageUrl: "",
-        },
-      });
+    http.expectOne("https://library.test/api/books/7").flush({
+      success: true,
+      data: {
+        id: 7,
+        title: "Public title",
+        authorName: "Author",
+        categoryName: "Category",
+        publicationYear: 1929,
+        imageUrl: "",
+      },
+    });
     harness.detectChanges();
     expect(harness.routeNativeElement?.textContent).toContain("Public title");
     expect(TestBed.inject(Router).url).toBe("/books/7");

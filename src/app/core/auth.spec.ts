@@ -12,6 +12,7 @@ const token = (role = "Admin", exp = Math.floor(Date.now() / 1000) + 3600) =>
   "e30." + btoa(JSON.stringify({ role, exp })) + ".signature";
 describe("Admin authentication", () => {
   beforeEach(() => {
+    localStorage.clear();
     sessionStorage.clear();
     TestBed.configureTestingModule({
       providers: [
@@ -24,6 +25,8 @@ describe("Admin authentication", () => {
   });
   afterEach(() => {
     TestBed.inject(HttpTestingController).verify();
+    TestBed.resetTestingModule();
+    localStorage.clear();
     sessionStorage.clear();
   });
   it("rejects expired, non-admin, and malformed tokens", () => {
@@ -40,7 +43,7 @@ describe("Admin authentication", () => {
       "/admin/login?returnUrl=%2Fadmin%2Fbooks",
     );
   });
-  it("uses real login payload and stores only the session token", () => {
+  it("uses real login payload and persists only the access token", () => {
     TestBed.inject(AuthService)
       .login("admin@example.com", "password")
       .subscribe();
@@ -56,10 +59,10 @@ describe("Admin authentication", () => {
       data: { token: token(), userData: { role: "Admin" } },
     });
     expect(TestBed.inject(AuthService).valid()).toBe(true);
-    expect(sessionStorage.getItem("library.token")).toBe(token());
+    expect(localStorage.getItem("library.token")).toBe(token());
   });
   it("never sends the bearer token to unrelated origins", () => {
-    TestBed.inject(AuthService).token.set(token());
+    localStorage.setItem("library.token", token());
     const client = TestBed.inject(HttpClient);
     client.get("https://other.test/api/books").subscribe();
     const http = TestBed.inject(HttpTestingController);

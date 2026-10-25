@@ -11,6 +11,7 @@ import {
   tap,
   Subject,
   startWith,
+  distinctUntilChanged,
 } from "rxjs";
 import { BooksService, errorMessage } from "../../core/api";
 import { Book, Filters, Named, Page } from "../../core/models";
@@ -23,6 +24,7 @@ import {
 import { ConfirmComponent } from "../../shared/confirm";
 import { BookFilters } from "./filters";
 import { BookCard } from "./card";
+import { routePage } from "../../shared/pagination";
 @Component({
   imports: [
     RouterLink,
@@ -65,12 +67,20 @@ export class BookList {
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.navigate(1));
     combineLatest([
-      this.route.queryParamMap,
+      this.route.queryParamMap.pipe(
+        distinctUntilChanged(
+          (a, b) =>
+            routePage(a.get("page")) === routePage(b.get("page")) &&
+            ["authorId", "categoryId", "publicationYear"].every(
+              (key) => a.get(key) === b.get(key),
+            ),
+        ),
+      ),
       this.refresh.pipe(startWith(undefined)),
     ])
       .pipe(
         tap(([params]) => {
-          this.page.set(Math.max(1, Number(params.get("page")) || 1));
+          this.page.set(routePage(params.get("page")));
           this.form.setValue(
             {
               authorId: params.get("authorId") || "",
@@ -83,17 +93,23 @@ export class BookList {
         switchMap(() => {
           this.loading.set(true);
           this.error.set("");
-          return this.api.list(this.filters(), this.page()).pipe(
-            catchError((e) => {
-              this.error.set(errorMessage(e));
-              return of(null);
-            }),
-          );
+          return this.api
+            .list(this.filters(), this.page(), this.admin ? 10 : 12)
+            .pipe(
+              catchError((e) => {
+                this.error.set(errorMessage(e));
+                return of(null);
+              }),
+            );
         }),
         takeUntilDestroyed(),
       )
       .subscribe((data) => {
         this.data.set(data);
+        if (data && this.page() > Math.max(1, data.totalPages)) {
+          this.navigate(Math.max(1, data.totalPages));
+          return;
+        }
         this.loading.set(false);
       });
   }
@@ -137,7 +153,7 @@ export class BookList {
   }
   confirmDelete() {
     const book = this.deleting();
-    if (!book) return;
+    if (!book || this.deleteBusy()) return;
     this.deleteBusy.set(true);
     this.deleteError.set("");
     this.api

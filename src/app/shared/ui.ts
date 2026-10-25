@@ -63,7 +63,7 @@ export class CoverComponent {
 }
 @Component({
   selector: "app-pagination",
-  template: `@if (pages() > 1) {
+  template: `@if (pages() > 0) {
     <nav class="pagination" aria-label="Pagination">
       <button
         (click)="change.emit(page() - 1)"
@@ -71,8 +71,9 @@ export class CoverComponent {
       >
         ← Previous</button
       ><span aria-live="polite"
-        >Page {{ page() }} of {{ pages() }}
-        <small>· {{ total() }} results</small></span
+        >Page
+        <span class="current-page" aria-current="page">{{ page() }}</span> of
+        {{ pages() }} <small>· {{ total() }} results</small></span
       ><button
         (click)="change.emit(page() + 1)"
         [disabled]="page() >= pages() || busy()"

@@ -29,7 +29,9 @@ import {
   Subject,
   startWith,
   takeUntil,
+  distinctUntilChanged,
 } from "rxjs";
+import { routePage } from "../../shared/pagination";
 @Component({
   imports: [
     ReactiveFormsModule,
@@ -72,11 +74,15 @@ export class NamedList {
   @ViewChild("editor", { static: true }) editor!: ElementRef<HTMLDialogElement>;
   constructor() {
     combineLatest([
-      this.route.queryParamMap,
+      this.route.queryParamMap.pipe(
+        distinctUntilChanged(
+          (a, b) => routePage(a.get("page")) === routePage(b.get("page")),
+        ),
+      ),
       this.refresh.pipe(startWith(undefined)),
     ])
       .pipe(
-        tap(([p]) => this.page.set(Math.max(1, Number(p.get("page")) || 1))),
+        tap(([p]) => this.page.set(routePage(p.get("page")))),
         switchMap(() => {
           this.loading.set(true);
           this.error.set("");
@@ -91,6 +97,10 @@ export class NamedList {
       )
       .subscribe((data) => {
         this.data.set(data);
+        if (data && this.page() > Math.max(1, data.totalPages)) {
+          this.navigate(Math.max(1, data.totalPages));
+          return;
+        }
         this.loading.set(false);
       });
   }
@@ -160,7 +170,7 @@ export class NamedList {
   }
   confirmDelete() {
     const item = this.deleting();
-    if (!item) return;
+    if (!item || this.busy()) return;
     this.busy.set(true);
     this.deleteError.set("");
     this.api

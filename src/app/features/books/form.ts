@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from "@angular/core";
+import { Component, DestroyRef, computed, inject, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -15,6 +15,7 @@ import { StateComponent } from "../../shared/ui";
 import { expand, reduce, EMPTY } from "rxjs";
 import { NamedService } from "../../core/api";
 import { imageError, nonBlank } from "../../shared/validation";
+import { SelectComponent } from "../../shared/select";
 // Follow the paginated APIs until all relationship choices have been loaded.
 export function allOptions(service: NamedService) {
   return service.list().pipe(
@@ -27,7 +28,7 @@ export function allOptions(service: NamedService) {
   );
 }
 @Component({
-  imports: [ReactiveFormsModule, RouterLink, StateComponent],
+  imports: [ReactiveFormsModule, RouterLink, StateComponent, SelectComponent],
   templateUrl: "./form.html",
 })
 export class BookFormPage {
@@ -46,6 +47,12 @@ export class BookFormPage {
   busy = signal(false);
   authors = signal<Named[]>([]);
   categories = signal<Named[]>([]);
+  authorOptions = computed(() =>
+    this.authors().map((a) => ({ value: a.id, label: a.name })),
+  );
+  categoryOptions = computed(() =>
+    this.categories().map((c) => ({ value: c.id, label: c.name })),
+  );
   preview = signal("");
   imageIssue = signal("");
   file: File | null = null;
@@ -152,9 +159,9 @@ export class BookFormPage {
         takeUntilDestroyed(this.destroy),
       )
       .subscribe({
-        next: (book) => {
+        next: () => {
           this.toast.show(this.id ? "Book updated." : "Book created.");
-          void this.router.navigate(["/admin/books", book.id]);
+          void this.router.navigate(["/admin/books"]);
         },
         error: (e) => {
           this.busy.set(false);

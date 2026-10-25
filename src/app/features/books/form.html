@@ -34,14 +34,17 @@
           >Enter a whole year between 1 and {{ maxYear }}.</small
         >
       }
-      <label
-        >Author<select formControlName="authorId">
-          <option [ngValue]="0">Select an author</option>
-          @for (author of authors(); track author.id) {
-            <option [ngValue]="author.id">{{ author.name }}</option>
-          }
-        </select></label
-      >
+      <app-select
+        label="Author"
+        [showLabel]="true"
+        placeholder="Select an author"
+        [emptyValue]="0"
+        formControlName="authorId"
+        [options]="authorOptions()"
+        [invalid]="
+          form.controls.authorId.touched && form.controls.authorId.invalid
+        "
+      />
       @if (form.controls.authorId.touched && form.controls.authorId.invalid) {
         <small class="error">Select an author.</small>
       }
@@ -51,14 +54,17 @@
           <a routerLink="/admin/authors">Add an author</a> first.
         </p>
       }
-      <label
-        >Category<select formControlName="categoryId">
-          <option [ngValue]="0">Select a category</option>
-          @for (category of categories(); track category.id) {
-            <option [ngValue]="category.id">{{ category.name }}</option>
-          }
-        </select></label
-      >
+      <app-select
+        label="Category"
+        [showLabel]="true"
+        placeholder="Select a category"
+        [emptyValue]="0"
+        formControlName="categoryId"
+        [options]="categoryOptions()"
+        [invalid]="
+          form.controls.categoryId.touched && form.controls.categoryId.invalid
+        "
+      />
       @if (
         form.controls.categoryId.touched && form.controls.categoryId.invalid
       ) {

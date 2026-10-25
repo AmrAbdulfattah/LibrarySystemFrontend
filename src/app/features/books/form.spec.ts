@@ -8,6 +8,7 @@ import {
   ActivatedRoute,
   convertToParamMap,
   provideRouter,
+  Router,
 } from "@angular/router";
 import { API_BASE_URL } from "../../core/api";
 import { BookFormPage } from "./form";
@@ -51,22 +52,115 @@ describe("Book form", () => {
         },
       });
     if (id)
-      http
-        .expectOne("https://library.test/api/books/" + id)
-        .flush({
-          success: true,
-          data: {
-            id: Number(id),
-            title: "A book",
-            publicationYear: 2020,
-            authorId: 2,
-            categoryId: 3,
-            imageUrl: "/images/a.jpg",
-          },
-        });
+      http.expectOne("https://library.test/api/books/" + id).flush({
+        success: true,
+        data: {
+          id: Number(id),
+          title: "A book",
+          publicationYear: 2020,
+          authorId: 2,
+          categoryId: 3,
+          imageUrl: "/images/a.jpg",
+        },
+      });
     return fixture;
   }
   afterEach(() => http.verify());
+  it.each([undefined, "7"])(
+    "returns to the books list only after a confirmed save (id=%s)",
+    (id) => {
+      const f = setup(id);
+      const c = f.componentInstance;
+      const router = TestBed.inject(Router);
+      const navigate = vi.spyOn(router, "navigate").mockResolvedValue(true);
+      c.form.setValue({
+        title: "A book",
+        publicationYear: 2020,
+        authorId: 2,
+        categoryId: 3,
+      });
+      if (!id) c.file = new File(["cover"], "cover.jpg");
+      c.save();
+      c.save();
+      expect(navigate).not.toHaveBeenCalled();
+      const req = http.expectOne(
+        "https://library.test/api/books" + (id ? "/7" : ""),
+      );
+      req.flush({ success: true, data: { id: 7 } });
+      expect(navigate).toHaveBeenCalledWith(["/admin/books"]);
+      f.destroy();
+    },
+  );
+  it.each([undefined, "7"])(
+    "retains the form on failed save and permits retry (id=%s)",
+    (id) => {
+      const f = setup(id);
+      const c = f.componentInstance;
+      const navigate = vi
+        .spyOn(TestBed.inject(Router), "navigate")
+        .mockResolvedValue(true);
+      c.form.setValue({
+        title: "A book",
+        publicationYear: 2020,
+        authorId: 2,
+        categoryId: 3,
+      });
+      if (!id) c.file = new File(["cover"], "cover.jpg");
+      c.save();
+      http
+        .expectOne("https://library.test/api/books" + (id ? "/7" : ""))
+        .flush(
+          { message: "Cannot save" },
+          { status: 400, statusText: "Bad Request" },
+        );
+      expect(navigate).not.toHaveBeenCalled();
+      expect(c.busy()).toBe(false);
+      expect(c.error()).toContain("Cannot save");
+      f.destroy();
+    },
+  );
+  it("submits numeric relationship IDs selected through the reusable controls", () => {
+    const fixture = setup();
+    const c = fixture.componentInstance;
+    vi.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    c.form.patchValue({ title: "A book", publicationYear: 2020 });
+    c.authors.set(
+      Array.from({ length: 40 }, (_, i) => ({
+        id: i + 1,
+        name: `كاتب ${i + 1}`,
+      })),
+    );
+    c.categories.set(
+      Array.from({ length: 40 }, (_, i) => ({
+        id: i + 1,
+        name: `تصنيف ${i + 1}`,
+      })),
+    );
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    for (const label of ["Author", "Category"]) {
+      root
+        .querySelector<HTMLButtonElement>(
+          `button[role="combobox"][aria-label="${label}"]`,
+        )!
+        .click();
+      fixture.detectChanges();
+      const options = root.querySelectorAll<HTMLElement>(
+        '.select-panel:not([hidden]) [role="option"]',
+      );
+      options[40].click();
+      fixture.detectChanges();
+    }
+    expect(c.form.controls.authorId.value).toBe(40);
+    expect(c.form.controls.categoryId.value).toBe(40);
+    c.file = new File(["cover"], "cover.jpg");
+    c.save();
+    const request = http.expectOne("https://library.test/api/books");
+    expect(request.request.body.get("AuthorId")).toBe("40");
+    expect(request.request.body.get("CategoryId")).toBe("40");
+    request.flush({ success: true, data: { id: 99 } });
+    fixture.destroy();
+  });
   it("does not submit invalid or imageless create forms", () => {
     const fixture = setup();
     const c = fixture.componentInstance;
@@ -124,8 +218,28 @@ describe("Book form", () => {
       .expectOne((r) => r.url.endsWith("/categories"))
       .flush({
         success: true,
-        data: { items: [], pageNumber: 1, totalPages: 0 },
+        data: {
+          items: [{ id: 11, name: "تصنيف أول" }],
+          pageNumber: 1,
+          totalPages: 2,
+        },
       });
+    http
+      .expectOne(
+        (r) =>
+          r.url.endsWith("/categories") && r.params.get("pageNumber") === "2",
+      )
+      .flush({
+        success: true,
+        data: {
+          items: [{ id: 12, name: "تصنيف أخير" }],
+          pageNumber: 2,
+          totalPages: 2,
+        },
+      });
+    expect(fixture.componentInstance.categories().map((c) => c.id)).toEqual([
+      11, 12,
+    ]);
     expect(fixture.componentInstance.authors().map((a) => a.id)).toEqual([
       1, 2,
     ]);

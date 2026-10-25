@@ -1,9 +1,10 @@
-import { Component, input, output } from "@angular/core";
+import { Component, computed, input, output } from "@angular/core";
 import { ReactiveFormsModule, FormControl, FormGroup } from "@angular/forms";
 import { Named } from "../../core/models";
+import { SelectComponent } from "../../shared/select";
 @Component({
   selector: "app-book-filters",
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, SelectComponent],
   template: `<form class="filters" [formGroup]="form()">
     <label
       ><span class="sr-only">Publication Year</span
@@ -13,23 +14,24 @@ import { Named } from "../../core/models";
           <option [value]="year">{{ year }}</option>
         }
       </select></label
-    ><label
-      ><span class="sr-only">Author</span
-      ><select formControlName="authorId">
-        <option value="">All Authors</option>
-        @for (author of authors(); track author.id) {
-          <option [value]="author.id">{{ author.name }}</option>
-        }
-      </select></label
-    ><label
-      ><span class="sr-only">Category</span
-      ><select formControlName="categoryId">
-        <option value="">All Categories</option>
-        @for (category of categories(); track category.id) {
-          <option [value]="category.id">{{ category.name }}</option>
-        }
-      </select></label
-    ><button type="button" class="text-button" (click)="clear.emit()">
+    >
+    <div class="filter-field">
+      <app-select
+        label="Author"
+        placeholder="All Authors"
+        formControlName="authorId"
+        [options]="authorOptions()"
+      />
+    </div>
+    <div class="filter-field">
+      <app-select
+        label="Category"
+        placeholder="All Categories"
+        formControlName="categoryId"
+        [options]="categoryOptions()"
+      />
+    </div>
+    <button type="button" class="text-button" (click)="clear.emit()">
       ↻ Clear Filters
     </button>
   </form>`,
@@ -44,6 +46,12 @@ export class BookFilters {
   >();
   authors = input<Named[]>([]);
   categories = input<Named[]>([]);
+  authorOptions = computed(() =>
+    this.authors().map((a) => ({ value: String(a.id), label: a.name })),
+  );
+  categoryOptions = computed(() =>
+    this.categories().map((c) => ({ value: String(c.id), label: c.name })),
+  );
   years = input<number[]>([]);
   clear = output();
 }

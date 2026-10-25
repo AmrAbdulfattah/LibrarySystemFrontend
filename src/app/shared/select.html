@@ -1,0 +1,52 @@
+@if (showLabel()) {
+  <label [for]="id">{{ label() }}</label>
+}
+<button
+  #trigger
+  type="button"
+  class="select-trigger"
+  [id]="id"
+  role="combobox"
+  aria-haspopup="listbox"
+  [attr.aria-label]="label()"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="id + '-listbox'"
+  [attr.aria-activedescendant]="activeId()"
+  [attr.aria-invalid]="invalid()"
+  [disabled]="disabled()"
+  (click)="toggle()"
+  (keydown)="keydown($event)"
+  (blur)="blur()"
+>
+  <span class="select-value" dir="auto">{{
+    selected()?.label || placeholder()
+  }}</span
+  ><span class="select-chevron" aria-hidden="true"></span>
+</button>
+<div
+  #panel
+  class="select-panel"
+  [id]="id + '-listbox'"
+  role="listbox"
+  [attr.aria-label]="label()"
+  [attr.popover]="supportsPopover ? 'manual' : null"
+  [hidden]="!open()"
+>
+  @for (option of choices(); track option.value; let i = $index) {
+    <div
+      role="option"
+      class="select-option"
+      [id]="id + '-option-' + i"
+      [attr.aria-selected]="option.value === value()"
+      [class.active]="i === activeIndex()"
+      (mousedown)="$event.preventDefault()"
+      (pointermove)="highlight(i, $event)"
+      (click)="choose(i)"
+    >
+      <span dir="auto">{{ option.label }}</span>
+      @if (option.value === value()) {
+        <span class="select-check" aria-hidden="true">✓</span>
+      }
+    </div>
+  }
+</div>
