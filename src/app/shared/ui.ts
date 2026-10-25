@@ -1,4 +1,11 @@
-import { Component, inject, input, output, signal } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
 import { BooksService } from "../core/api";
 @Component({
   selector: "app-cover",
@@ -63,23 +70,54 @@ export class CoverComponent {
 }
 @Component({
   selector: "app-pagination",
-  template: `@if (pages() > 0) {
+  styles: [
+    `
+      :host {
+        display: block;
+        width: 100%;
+      }
+    `,
+  ],
+  template: `@if (pages() > 0 && total() > 0) {
     <nav class="pagination" aria-label="Pagination">
-      <button
-        (click)="change.emit(page() - 1)"
-        [disabled]="page() <= 1 || busy()"
-      >
-        ← Previous</button
-      ><span aria-live="polite"
-        >Page
-        <span class="current-page" aria-current="page">{{ page() }}</span> of
-        {{ pages() }} <small>· {{ total() }} results</small></span
-      ><button
-        (click)="change.emit(page() + 1)"
-        [disabled]="page() >= pages() || busy()"
-      >
-        Next →
-      </button>
+      <p class="pagination-summary" aria-live="polite">
+        Showing {{ start() }}–{{ end() }} of {{ total() }} {{ itemLabel() }}
+      </p>
+      <div class="pagination-controls">
+        <button
+          type="button"
+          aria-label="Previous page"
+          (click)="change.emit(page() - 1)"
+          [disabled]="page() <= 1 || busy()"
+        >
+          ← Previous
+        </button>
+        @for (item of pageItems(); track $index) {
+          @if (item) {
+            <button
+              type="button"
+              class="page-number"
+              [class.current-page]="item === page()"
+              [attr.aria-current]="item === page() ? 'page' : null"
+              [attr.aria-label]="'Page ' + item"
+              (click)="change.emit(item)"
+              [disabled]="item === page() || busy()"
+            >
+              {{ item }}
+            </button>
+          } @else {
+            <span class="pagination-ellipsis" aria-hidden="true">…</span>
+          }
+        }
+        <button
+          type="button"
+          aria-label="Next page"
+          (click)="change.emit(page() + 1)"
+          [disabled]="page() >= pages() || busy()"
+        >
+          Next →
+        </button>
+      </div>
     </nav>
   }`,
 })
@@ -87,6 +125,45 @@ export class PaginationComponent {
   page = input(1);
   pages = input(0);
   total = input(0);
+  pageSize = input(10);
+  itemLabel = input("records");
+  visibleCount = input<number | null>(null);
+  private offset = computed(() =>
+    Math.max(0, (this.page() - 1) * this.pageSize()),
+  );
+  private count = computed(() =>
+    Math.max(
+      0,
+      Math.min(
+        this.visibleCount() ?? this.pageSize(),
+        this.pageSize(),
+        this.total() - this.offset(),
+      ),
+    ),
+  );
+  start = computed(() => (this.count() > 0 ? this.offset() + 1 : 0));
+  end = computed(() => (this.count() > 0 ? this.offset() + this.count() : 0));
+  pageItems = computed<Array<number | null>>(() => {
+    const total = this.pages();
+    if (total <= 7)
+      return Array.from(
+        { length: Math.max(0, total) },
+        (_, index) => index + 1,
+      );
+    const selected = [
+      ...new Set([1, total, this.page() - 1, this.page(), this.page() + 1]),
+    ]
+      .filter((p) => p >= 1 && p <= total)
+      .sort((a, b) => a - b);
+    const items: Array<number | null> = [];
+    selected.forEach((p, index) => {
+      const previous = selected[index - 1];
+      if (index && p - previous === 2) items.push(previous + 1);
+      else if (index && p - previous > 2) items.push(null);
+      items.push(p);
+    });
+    return items;
+  });
   busy = input(false);
   change = output<number>();
 }

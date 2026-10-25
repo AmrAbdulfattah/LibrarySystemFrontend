@@ -59,6 +59,9 @@
     [page]="result.pageNumber"
     [pages]="result.totalPages"
     [total]="result.totalCount"
+    [pageSize]="result.pageSize"
+    [visibleCount]="result.items.length"
+    [itemLabel]="plural.toLowerCase()"
     (change)="navigate($event)"
   />
 }

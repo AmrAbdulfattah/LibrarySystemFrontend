@@ -89,6 +89,9 @@
     [page]="result.pageNumber"
     [pages]="result.totalPages"
     [total]="result.totalCount"
+    [pageSize]="result.pageSize"
+    [visibleCount]="result.items.length"
+    itemLabel="books"
     (change)="navigate($event)"
   />
 }

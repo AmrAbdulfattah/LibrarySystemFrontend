@@ -206,32 +206,56 @@ small {
 }
 .pagination {
   border-top: 1px solid var(--border);
+  width: 100%;
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
   margin-top: 48px;
   padding: 20px 0;
 }
+.pagination-summary {
+  margin: 0;
+  flex: 0 0 auto;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: auto;
+  white-space: nowrap;
+  overflow-x: auto;
+}
 .pagination button {
   border: 0;
   font-size: 13px;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
-.pagination span {
+.pagination .pagination-ellipsis {
   font-size: 13px;
+  padding: 0 4px;
+  flex: 0 0 auto;
 }
-.pagination small {
-  margin-left: 8px;
+.pagination .page-number {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 .pagination .current-page {
-  display: inline-block;
-  min-width: 28px;
-  padding: 2px 8px;
-  margin: 0 3px;
-  border-radius: 4px;
   background: var(--green);
   color: var(--cream);
   text-align: center;
+  opacity: 1;
 }
 .admin-shell {
   min-height: 100vh;
@@ -246,12 +270,12 @@ small {
   display: flex;
   flex-direction: column;
 }
-.admin-shell nav {
+.admin-shell aside nav {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-.admin-shell nav a {
+.admin-shell aside nav a {
   padding: 12px 16px;
   display: flex;
   align-items: center;
@@ -260,11 +284,11 @@ small {
   border-radius: 4px;
   color: var(--muted);
 }
-.admin-shell nav a.active {
+.admin-shell aside nav a.active {
   background: var(--green);
   color: white;
 }
-.admin-shell nav span {
+.admin-shell aside nav span {
   font-size: 22px;
   width: 20px;
 }
@@ -665,17 +689,15 @@ dialog form {
   }
   .pagination {
     margin-top: 28px;
-    gap: 4px;
+    gap: 12px;
+    flex-wrap: wrap;
   }
   .pagination button {
     padding: 6px;
     font-size: 12px;
   }
-  .pagination span {
-    font-size: 11px;
-  }
-  .pagination small {
-    display: none;
+  .pagination-summary {
+    font-size: 12px;
   }
   .mobile-menu {
     display: flex;
